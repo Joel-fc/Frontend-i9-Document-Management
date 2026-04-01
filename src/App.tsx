@@ -1,13 +1,21 @@
 import { useState } from 'react'
+import { login } from './services/authServices.ts'
 
 function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const handleLogin = (e) => {
+
+
+  const handleLogin = async (e:any) => {
     e.preventDefault();
-    console.log('Tentativa de login com:', { email, password });
-    alert(`E-mail: ${email}\nSenha: ${password}`);
+    
+    try {
+      const data = await login(email, password.toString());
+      console.log(data)
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
