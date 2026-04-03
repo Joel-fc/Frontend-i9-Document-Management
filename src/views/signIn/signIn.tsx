@@ -1,17 +1,20 @@
 import { useState } from 'react'
-import { login } from './services/authServices.ts'
+import { signIn } from '../../services/authServices.ts'
+import { useNavigate } from 'react-router-dom';
 
-function App() {
+
+function SignIn() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
 
 
-  const handleLogin = async (e:any) => {
+  const handleLogin = async (e: any) => {
     e.preventDefault();
     
     try {
-      const data = await login(email, password.toString());
+      const data = await signIn(email, password.toString());
       console.log(data)
     } catch (error) {
       console.error(error);
@@ -62,10 +65,18 @@ function App() {
           >
             Entrar
           </button>
+
+          <button 
+            type="button"
+            onClick={() => navigate('/register')}
+            className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-300 mt-2"
+          >
+            Criar uma conta
+          </button>
         </form>
       </div>
     </section>
   )
 }
 
-export default App
+export default SignIn
