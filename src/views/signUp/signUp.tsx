@@ -29,7 +29,7 @@ function SignUp() {
           Crie sua conta
         </h1>
 
-        <form onSubmit={handleSignUp} className="space-y-4">
+        <form className="space-y-4">
           <div>
             <label htmlFor='name' className='block text-sm font-medium text-gray-700 mb-1'>
                 Nome
@@ -74,7 +74,8 @@ function SignUp() {
           </div>
 
           <button 
-            type="submit"
+            type="button"
+            onClick={handleSignUp}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-300 mt-2"
           >
             Registrar
