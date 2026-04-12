@@ -1,6 +1,6 @@
 import { axiosApi } from './api';
 
-export async function signIn(email:string, password:string):Promise<any> {
+export async function signInService(email:string, password:string):Promise<any> {
   const response = await axiosApi.post('/auth/login', {
     email,
     password
@@ -9,7 +9,7 @@ export async function signIn(email:string, password:string):Promise<any> {
   return response.data;
 }
 
-export async function signUp(email:string, name: string, password:string):Promise<any> {
+export async function signUpService(email:string, name: string, password:string):Promise<any> {
   const response = await axiosApi.post('/auth/register', {
     email,
     name,
