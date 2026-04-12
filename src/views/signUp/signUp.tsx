@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { signUp } from '../../services/authServices.ts'
+import { signUpService } from '../../services/authServices.ts'
 import { useNavigate } from 'react-router-dom';
 
 
@@ -15,7 +15,7 @@ function SignUp() {
     e.preventDefault();
     
     try {
-      const data = await signUp(email, name, password.toString());
+      const data = await signUpService(email, name, password.toString());
       console.log(data)
     } catch (error) {
       console.error(error);
@@ -23,8 +23,9 @@ function SignUp() {
   }
 
   return (
-    <section className="w-full max-w-sm">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
+    <main className="flex min-h-screen w-full items-center justify-center bg-[#355a92] font-sans text-[#333]">
+      <section className="w-full max-w-sm">
+        <div className="bg-white p-8 rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Crie sua conta
         </h1>
@@ -90,7 +91,8 @@ function SignUp() {
           </button>
         </form>
       </div>
-    </section>
+      </section>
+    </main>
   )
 }
 
