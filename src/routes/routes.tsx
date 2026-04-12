@@ -12,3 +12,7 @@ export function AppRoutes() {
     </BrowserRouter>
   );
 }
+
+/*
+        <Route path="/projects" element={<ProjectGallery/>} />
+*/

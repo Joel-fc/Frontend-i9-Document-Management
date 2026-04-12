@@ -15,9 +15,14 @@ function SignIn() {
     
     try {
       const data = await signInService(email, password.toString());
-      console.log(data)
+      const token = data.access_token;
+
+      if (token) {
+        localStorage.setItem('@i9:token', token);
+        window.location.href = '/projects'; 
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Falha no login:", error);
     }
   }
 
