@@ -71,15 +71,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </p>
         
         <div className="flex items-center justify-between mt-auto space-y-4 flex-col sm:flex-row sm:space-y-0 sm:items-end">
-           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium \${statusInfo.bg} \${statusInfo.text}` }>
+           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.bg} ${statusInfo.text}` }>
             <StatusIcon className="w-3.5 h-3.5 mr-1" />
             {statusInfo.label}
           </span>
           <Link
-            to={`/projects/\${project.id}`}
+            to={`/projects/${project.id}`}
             className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 ring-offset-background hover:bg-slate-100 hover:text-slate-900 h-9 px-4 py-2 border border-slate-200 w-full sm:w-auto"
           >
-            Ver Detalhes
+            Lista de Colaboradores
             <ExternalLink className="w-4 h-4 ml-2" />
           </Link>
         </div>
