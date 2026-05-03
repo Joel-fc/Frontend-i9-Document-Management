@@ -67,32 +67,33 @@ export default function Projects() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6 font-sans">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <main className="min-h-screen bg-gray-50 p-6 font-sans">
+      <div className="max-w-7xl mx-auto space-y-10">
         
         {/* Header Section */}
-        <section className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Lista de Projetos</h1>
+        <section className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-brand-blue p-8 rounded-xl shadow-lg border border-brand-blue">
+          <div className="relative">
+            <div className="absolute -top-4 left-0 w-12 h-1 bg-brand-orange rounded-full"></div>
+            <h1 className="text-2xl mt-2 font-bold text-white tracking-widest uppercase">Lista de Projetos</h1>
           </div>
           
-          <button className="inline-flex items-center justify-center bg-[#355a92] hover:bg-[#294672] text-white px-4 py-2 rounded-md font-medium transition-colors shadow-sm">
+          <button className="inline-flex items-center justify-center bg-brand-orange hover:bg-orange-600 text-white px-6 py-3 rounded-md font-semibold tracking-wide uppercase transition-colors shadow-md">
             <Plus className="w-5 h-5 mr-2" />
             Novo Projeto
           </button>
         </section>
 
         {/* Filter Section */}
-        <section className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+        <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           <div className="relative max-w-md">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-slate-400" />
+              <Search className="h-5 w-5 text-brand-orange" />
             </div>
             <input
               type="text"
               value={searchTitle}
               onChange={(e) => setSearchTitle(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-md leading-5 bg-white placeholder-slate-500 focus:outline-none focus:placeholder-slate-400 focus:ring-1 focus:ring-[#355a92] focus:border-[#355a92] sm:text-sm transition-colors"
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-400 text-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-orange focus:border-brand-orange sm:text-sm transition-colors"
               placeholder="Buscar pelo nome do projeto..."
             />
           </div>

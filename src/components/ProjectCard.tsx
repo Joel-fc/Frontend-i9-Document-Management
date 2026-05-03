@@ -42,10 +42,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const StatusIcon = statusInfo.icon;
 
   return (
-    <div className="bg-white border text-card-foreground shadow-sm rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-300 flex flex-col h-full ring-1 ring-slate-200">
-      <div className="relative aspect-video w-full overflow-hidden bg-slate-100 flex items-center justify-center">
+    <div className="bg-white text-brand-blue shadow-sm rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full border border-gray-100 relative pt-1">
+      <div className="absolute top-0 left-0 w-full h-1 bg-brand-orange"></div>
+      <div className="relative aspect-video w-full overflow-hidden bg-gray-50 flex items-center justify-center border-b border-gray-100">
         {!project.imageUrl || imageError ? (
-          <div className="flex flex-col items-center justify-center text-slate-400">
+          <div className="flex flex-col items-center justify-center text-gray-400">
             <Building2 className="w-12 h-12 mb-2 opacity-50" />
             <span className="text-sm font-medium">Imagem indisponível</span>
           </div>
@@ -61,25 +62,25 @@ export function ProjectCard({ project }: ProjectCardProps) {
       
       <div className="p-6 flex flex-col flex-grow">
         <div className="flex justify-between items-start mb-4">
-          <h3 className="font-semibold text-lg leading-tight text-slate-900 line-clamp-2" title={project.title}>
+          <h3 className="font-bold text-lg leading-tight uppercase tracking-wide text-brand-blue line-clamp-2" title={project.title}>
             {project.title}
           </h3>
         </div>
         
-        <p className="text-sm text-slate-500 line-clamp-2 mb-4 flex-grow" title={project.description}>
+        <p className="text-sm text-gray-500 line-clamp-2 mb-6 flex-grow" title={project.description}>
           {project.description || 'Nenhuma descrição fornecida.'}
         </p>
         
         <div className="flex items-center justify-between mt-auto space-y-4 flex-col sm:flex-row sm:space-y-0 sm:items-end">
-           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.bg} ${statusInfo.text}` }>
-            <StatusIcon className="w-3.5 h-3.5 mr-1" />
+           <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${statusInfo.bg} ${statusInfo.text}` }>
+            <StatusIcon className="w-4 h-4 mr-1.5" />
             {statusInfo.label}
           </span>
           <Link
             to={`/projects/${project.id}`}
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 ring-offset-background hover:bg-slate-100 hover:text-slate-900 h-9 px-4 py-2 border border-slate-200 w-full sm:w-auto"
+            className="inline-flex items-center justify-center rounded-md text-sm font-bold uppercase tracking-wider transition-colors hover:bg-brand-orange hover:text-white text-brand-orange h-10 px-4 py-2 border border-brand-orange w-full sm:w-auto"
           >
-            Lista de Colaboradores
+            Acessar
             <ExternalLink className="w-4 h-4 ml-2" />
           </Link>
         </div>
