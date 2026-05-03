@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getEmployeeDocumentsService } from '../../services/employeeServices';
-import type { Document } from '../../services/employeeServices';
+import type { EmployeeDocumentsResponse } from '../../services/employeeServices';
 import { FileText, FileDown, ArrowLeft, File, Image as ImageIcon, SearchX } from 'lucide-react';
 
 export default function EmployeeDocumentsPage() {
   const { id } = useParams<{ id: string }>();
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [employeeData, setEmployeeData] = useState<EmployeeDocumentsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,7 +16,7 @@ export default function EmployeeDocumentsPage() {
         setLoading(true);
         if (id) {
           const data = await getEmployeeDocumentsService(id);
-          setDocuments(data);
+          setEmployeeData(data);
         }
       } catch (err) {
         setError('Falha ao carregar documentos do funcionário.');
@@ -28,8 +28,9 @@ export default function EmployeeDocumentsPage() {
     fetchDocuments();
   }, [id]);
 
-  const renderIcon = (type: string) => {
-    switch (type.toLowerCase()) {
+  const renderIcon = (fileUrl: string) => {
+    const extension = fileUrl.split('.').pop()?.toLowerCase();
+    switch (extension) {
       case 'pdf': return <FileText className="w-10 h-10 text-rose-400" />;
       case 'doc': 
       case 'docx': return <FileText className="w-10 h-10 text-blue-400" />;
@@ -38,6 +39,11 @@ export default function EmployeeDocumentsPage() {
       case 'jpeg': return <ImageIcon className="w-10 h-10 text-emerald-400" />;
       default: return <File className="w-10 h-10 text-slate-400" />;
     }
+  };
+
+  const getExtension = (fileUrl: string) => {
+      const ext = fileUrl.split('.').pop()?.toUpperCase() || 'ARQUIVO';
+      return ext.length > 4 ? 'DOC' : ext;
   };
 
   if (loading) {
@@ -89,16 +95,16 @@ export default function EmployeeDocumentsPage() {
             </div>
             <h1 className="text-3xl font-bold text-white">Documentação</h1>
             <p className="text-slate-400 mt-1 flex items-center gap-2">
-              Gerencie e visualize documentos deste colaborador.
+              Gerencie e visualize documentos de {employeeData?.user?.name || 'este colaborador'}.
             </p>
           </div>
           <div className="flex items-center gap-3 bg-slate-800/50 py-2 px-4 rounded-lg border border-slate-700/50 text-slate-300 text-sm">
-            <span className="font-semibold text-white">{documents.length}</span> documentos
+            <span className="font-semibold text-white">{employeeData?.documents?.length || 0}</span> documentos
           </div>
         </div>
 
         {/* Empty State / List */}
-        {documents.length === 0 ? (
+        {!employeeData?.documents || employeeData.documents.length === 0 ? (
           <div className="bg-slate-800 border-2 border-dashed border-slate-700 rounded-xl p-16 flex flex-col items-center justify-center text-center">
             <div className="bg-slate-700/50 p-4 rounded-full mb-4">
               <SearchX className="w-12 h-12 text-slate-400" />
@@ -110,23 +116,23 @@ export default function EmployeeDocumentsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {documents.map((doc) => (
+            {(employeeData?.documents || []).map((doc) => (
               <div 
                 key={doc.id}
                 className="bg-slate-800 border border-slate-700 rounded-xl p-5 hover:border-slate-500 transition-all shadow-sm flex items-center justify-between gap-4 group"
               >
                 <div className="flex flex-1 items-center gap-5 min-w-0">
                   <div className="p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 shadow-inner shrink-0 group-hover:scale-105 transition-transform duration-300">
-                    {renderIcon(doc.type || 'unknown')}
+                    {renderIcon(doc.fileUrl || 'unknown')}
                   </div>
                   
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-lg font-semibold text-white truncate mb-1" title={doc.title}>
-                      {doc.title}
+                    <h3 className="text-lg font-semibold text-white truncate mb-1" title={doc.name}>
+                      {doc.name}
                     </h3>
                     <div className="flex items-center gap-3 text-sm text-slate-400">
                       <span className="uppercase font-medium tracking-wider text-xs bg-slate-700/50 px-2 py-0.5 rounded text-slate-300 border border-slate-600/50">
-                        {doc.type}
+                        {getExtension(doc.fileUrl)}
                       </span>
                       <span>•</span>
                       <span>Adicionado em {new Date(doc.createdAt).toLocaleDateString('pt-BR')}</span>

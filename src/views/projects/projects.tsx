@@ -16,11 +16,10 @@ export default function Projects() {
   const [searchTitle, setSearchTitle] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  // Debounce lógica
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchTitle);
-      setCurrentPage(1); // Reseta a paginação numa nova busca
+      setCurrentPage(1);
     }, 300);
 
     return () => clearTimeout(handler);

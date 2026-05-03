@@ -2,13 +2,22 @@ import { axiosApi } from './api';
 
 export interface Document {
   id: string;
-  title: string;
+  name: string;
   fileUrl: string;
-  type: string;
+  userId: number;
   createdAt: string;
 }
 
-export const getEmployeeDocumentsService = async (employeeId: string): Promise<Document[]> => {
+export interface EmployeeDocumentsResponse {
+  user: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  documents: Document[];
+}
+
+export const getEmployeeDocumentsService = async (employeeId: string): Promise<EmployeeDocumentsResponse> => {
   const response = await axiosApi.get(`/users/${employeeId}/documents`);
   return response.data;
 };
