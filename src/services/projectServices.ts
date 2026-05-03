@@ -26,12 +26,6 @@ export interface GetProjectsResponse {
 }
 
 export const getProjectsService = async (page: number = 1, title?: string): Promise<GetProjectsResponse> => {
-  const token = localStorage.getItem('@i9:token');
-
-  if (!token) {
-    throw new Error('No token found');
-  }
-
   const params: any = { page };
   if (title) {
     params.title = title;
@@ -39,10 +33,24 @@ export const getProjectsService = async (page: number = 1, title?: string): Prom
 
   const response = await axiosApi.get('/projects/all', {
     params,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
+  return response.data;
+};
+
+export interface Employee {
+  id: string | number;
+  name: string;
+  role?: string | null;
+  avatarUrl?: string | null;
+  email: string;
+}
+
+export interface ProjectDetails extends Project {
+  users: Employee[];
+}
+
+export const getProjectByIdService = async (id: string): Promise<ProjectDetails> => {
+  const response = await axiosApi.get(`/projects/${id}`);
   return response.data;
 };
