@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { getEmployeeDocumentsService } from '../../services/employeeServices';
+import { getEmployeeDocumentsService, addEmployeeDocumentService } from '../../services/employeeServices';
 import type { EmployeeDocumentsResponse } from '../../services/employeeServices';
-import { FileText, FileDown, ArrowLeft, File, Image as ImageIcon, SearchX } from 'lucide-react';
+import { FileText, FileDown, ArrowLeft, File, Image as ImageIcon, SearchX, Plus, X, Upload } from 'lucide-react';
+import { supabase } from '../../library/supabase';
 
 export default function EmployeeDocumentsPage() {
   const { id } = useParams<{ id: string }>();
@@ -10,23 +11,98 @@ export default function EmployeeDocumentsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchDocuments = async () => {
-      try {
-        setLoading(true);
-        if (id) {
-          const data = await getEmployeeDocumentsService(id);
-          setEmployeeData(data);
-        }
-      } catch (err) {
-        setError('Falha ao carregar documentos do funcionário.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [docName, setDocName] = useState('');
+  const [selectedFile, setSelectedFile] = useState<globalThis.File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchDocuments = async () => {
+    try {
+      setLoading(true);
+      if (id) {
+        const data = await getEmployeeDocumentsService(id);
+        setEmployeeData(data);
+      }
+    } catch (err) {
+      setError('Falha ao carregar documentos do funcionário.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchDocuments();
   }, [id]);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const validTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
+      if (!validTypes.includes(file.type)) {
+        showToast('Formato inválido. Apenas PDF, PNG, JPG e JPEG são aceitos.', 'error');
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
+  const handleUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!docName.trim()) {
+      showToast('O nome do documento é obrigatório.', 'error');
+      return;
+    }
+    if (!selectedFile || !id) {
+      showToast('Selecione um arquivo.', 'error');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      
+      const uniqueFileName = `${Date.now()}-${selectedFile.name.replace(/\s+/g, '-')}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('user-documents')
+        .upload(uniqueFileName, selectedFile);
+
+      if (uploadError) {
+        throw new Error(uploadError.message);
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('user-documents')
+        .getPublicUrl(uniqueFileName);
+
+      const fileUrl = publicUrlData.publicUrl;
+
+      await addEmployeeDocumentService(id, { name: docName, fileUrl });
+
+      showToast('Documento adicionado com sucesso!', 'success');
+      
+      setDocName('');
+      setSelectedFile(null);
+      setIsModalOpen(false);
+      
+      const updatedData = await getEmployeeDocumentsService(id);
+      setEmployeeData(updatedData);
+
+    } catch (err: any) {
+      console.error(err);
+      showToast(err.message || 'Erro ao enviar documento.', 'error');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const renderIcon = (fileUrl: string) => {
     const extension = fileUrl.split('.').pop()?.toLowerCase();
@@ -83,7 +159,12 @@ export default function EmployeeDocumentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 pt-16 pb-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-gray-100 pt-16 pb-12 px-4 sm:px-6 lg:px-8 font-sans relative">
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded shadow-lg text-white font-bold text-sm uppercase tracking-wider transition-all duration-300 ${toast.type === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`}>
+          {toast.message}
+        </div>
+      )}
       <div className="max-w-5xl mx-auto">
         
         {/* Header */}
@@ -99,8 +180,18 @@ export default function EmployeeDocumentsPage() {
               Gerencie e visualize documentos de {employeeData?.user?.name || 'este colaborador'}.
             </p>
           </div>
-          <div className="flex items-center mt-4 sm:mt-0 gap-3 bg-gray-50 py-2 px-4 rounded-lg border border-gray-200 text-brand-blue shadow-sm">
-            <span className="font-bold">{employeeData?.documents?.length || 0}</span> <span className="uppercase text-xs font-semibold tracking-wider">documentos</span>
+          <div className="flex items-center mt-4 sm:mt-0 gap-3">
+            <div className="flex items-center gap-3 bg-gray-50 py-2 px-4 rounded-lg border border-gray-200 text-brand-blue shadow-sm">
+              <span className="font-bold">{employeeData?.documents?.length || 0}</span> <span className="uppercase text-xs font-semibold tracking-wider">documentos</span>
+            </div>
+            
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-brand-orange hover:bg-orange-600 text-white text-xs font-bold uppercase tracking-wider rounded-md transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-orange focus:ring-offset-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Adicionar Documento</span>
+            </button>
           </div>
         </div>
 
@@ -159,6 +250,110 @@ export default function EmployeeDocumentsPage() {
           </div>
         )}
       </div>
+
+      {/* Upload Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between px-6 py-4 bg-brand-blue">
+              <h2 className="text-white font-bold uppercase tracking-wider">Novo Documento</h2>
+              <button 
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setDocName('');
+                  setSelectedFile(null);
+                }} 
+                className="text-gray-300 hover:text-white transition-colors focus:outline-none"
+                disabled={isUploading}
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleUpload} className="p-6">
+              <div className="space-y-5">
+                <div>
+                  <label htmlFor="docName" className="block text-sm font-bold text-brand-blue mb-1 uppercase tracking-wide">
+                    Nome do Documento
+                  </label>
+                  <input
+                    type="text"
+                    id="docName"
+                    value={docName}
+                    onChange={(e) => setDocName(e.target.value)}
+                    placeholder="Ex: Certificado NR-35"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-brand-orange text-gray-700 bg-gray-50 transition-all"
+                    disabled={isUploading}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-brand-blue mb-1 uppercase tracking-wide">
+                    Arquivo
+                  </label>
+                  <div 
+                    className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-lg transition-colors cursor-pointer ${selectedFile ? 'border-brand-orange bg-orange-50' : 'border-gray-300 hover:border-brand-orange hover:bg-gray-50'}`}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <div className="space-y-1 text-center w-full">
+                      <Upload className={`mx-auto h-12 w-12 ${selectedFile ? 'text-brand-orange' : 'text-gray-400'}`} />
+                      <div className="flex text-sm text-gray-600 justify-center w-full mt-2">
+                        <span className="relative font-bold text-brand-orange hover:text-orange-600 truncate max-w-[200px] block">
+                          {selectedFile ? selectedFile.name : 'Selecionar arquivo'}
+                        </span>
+                        <input
+                          id="file-upload"
+                          name="file-upload"
+                          type="file"
+                          accept=".pdf,.png,.jpg,.jpeg"
+                          className="sr-only"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          disabled={isUploading}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {selectedFile ? 'Clique para trocar de arquivo' : 'Apenas .pdf, .png, .jpg ou .jpeg'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setDocName('');
+                    setSelectedFile(null);
+                  }}
+                  className="px-5 py-2 text-brand-blue font-bold text-xs uppercase tracking-wider hover:bg-gray-100 rounded-md transition-colors focus:outline-none"
+                  disabled={isUploading}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUploading}
+                  className="px-6 py-2 bg-brand-orange hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider rounded-md transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:ring-offset-2"
+                >
+                  {isUploading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Enviando...</span>
+                    </>
+                  ) : (
+                    'Salvar'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

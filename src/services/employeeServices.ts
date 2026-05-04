@@ -21,3 +21,8 @@ export const getEmployeeDocumentsService = async (employeeId: string): Promise<E
   const response = await axiosApi.get(`/users/${employeeId}/documents`);
   return response.data;
 };
+
+export const addEmployeeDocumentService = async (employeeId: string, data: { name: string; fileUrl: string }): Promise<Document> => {
+  const response = await axiosApi.post(`/users/${employeeId}/documents`, data);
+  return response.data;
+};
