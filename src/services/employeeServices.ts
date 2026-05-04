@@ -4,15 +4,15 @@ export interface Document {
   id: string;
   name: string;
   fileUrl: string;
-  userId: number;
+  employeeId: string;
   createdAt: string;
 }
 
 export interface EmployeeDocumentsResponse {
-  user: {
-    id: number;
+  employee: {
+    id: string;
     name: string;
-    email: string;
+    role?: string;
   };
   documents: Document[];
 }
@@ -26,7 +26,7 @@ export interface EmployeeListItem {
 }
 
 export const getEmployeeDocumentsService = async (employeeId: string): Promise<EmployeeDocumentsResponse> => {
-  const response = await axiosApi.get(`/users/${employeeId}/documents`);
+  const response = await axiosApi.get(`/employees/${employeeId}/documents`);
   return response.data;
 };
 
@@ -36,6 +36,6 @@ export const getAllEmployeesService = async (): Promise<EmployeeListItem[]> => {
 };
 
 export const addEmployeeDocumentService = async (employeeId: string, data: { name: string; fileUrl: string }): Promise<Document> => {
-  const response = await axiosApi.post(`/users/${employeeId}/documents`, data);
+  const response = await axiosApi.post(`/employees/${employeeId}/documents`, data);
   return response.data;
 };

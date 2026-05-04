@@ -40,6 +40,7 @@ export const getProjectsService = async (page: number = 1, title?: string): Prom
 
 export interface Employee {
   id: string | number;
+  userId?: number | null;
   name: string;
   role?: string | null;
   avatarUrl?: string | null;
@@ -47,7 +48,7 @@ export interface Employee {
 }
 
 export interface ProjectDetails extends Project {
-  users: Employee[];
+  employees: Employee[];
 }
 
 export interface CreateProjectPayload {

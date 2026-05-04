@@ -177,7 +177,7 @@ export default function EmployeeDocumentsPage() {
             </div>
             <h1 className="text-3xl font-bold text-brand-blue uppercase tracking-widest">Documentação</h1>
             <p className="text-gray-600 mt-1 flex items-center gap-2 text-sm">
-              Gerencie e visualize documentos de {employeeData?.user?.name || 'este colaborador'}.
+              Gerencie e visualize documentos de {employeeData?.employee?.name || 'este colaborador'}.
             </p>
           </div>
           <div className="flex items-center mt-4 sm:mt-0 gap-3">
