@@ -47,7 +47,7 @@ export interface Employee {
 }
 
 export interface ProjectDetails extends Project {
-  users: Employee[];
+  employees: Employee[];
 }
 
 export interface CreateProjectPayload {

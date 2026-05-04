@@ -111,14 +111,14 @@ export default function ProjectDetailsPage() {
           </button>
         </div>
 
-        {(!project.users || project.users.length === 0) ? (
+        {(!project.employees || project.employees.length === 0) ? (
           <div className="bg-white border border-gray-200 rounded-lg p-10 text-center shadow-sm">
             <h3 className="text-brand-blue font-bold uppercase tracking-wide mb-2">Nenhum membro alocado.</h3>
             <p className="text-gray-500 text-sm">Este projeto ainda não possui colaboradores registrados.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {project.users.map((member) => (
+            {project.employees.map((member) => (
               <div
                 key={member.id}
                 className="bg-white border text-brand-blue border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow shadow-sm flex flex-col justify-between"
@@ -170,7 +170,7 @@ export default function ProjectDetailsPage() {
           fetchProject();
         }}
         projectId={id!}
-        currentUsers={project.users || []}
+        currentUsers={project.employees || []}
       />
     </div>
   );
