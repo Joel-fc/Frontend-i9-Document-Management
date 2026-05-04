@@ -40,6 +40,7 @@ export const getProjectsService = async (page: number = 1, title?: string): Prom
 
 export interface Employee {
   id: string | number;
+  userId?: number | null;
   name: string;
   role?: string | null;
   avatarUrl?: string | null;
