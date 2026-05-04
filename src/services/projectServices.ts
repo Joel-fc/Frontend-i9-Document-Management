@@ -50,7 +50,24 @@ export interface ProjectDetails extends Project {
   users: Employee[];
 }
 
+export interface CreateProjectPayload {
+  title: string;
+  description: string;
+  imageUrl: string;
+  employeeIds: string[];
+}
+
+export const createProjectService = async (data: CreateProjectPayload): Promise<Project> => {
+  const response = await axiosApi.post('/projects', data);
+  return response.data;
+};
+
 export const getProjectByIdService = async (id: string): Promise<ProjectDetails> => {
   const response = await axiosApi.get(`/projects/${id}`);
+  return response.data;
+};
+
+export const addEmployeeToProjectService = async (projectId: string, employeeIds: string[]): Promise<void> => {
+  const response = await axiosApi.post(`/projects/${projectId}/employees`, { employeeIds });
   return response.data;
 };

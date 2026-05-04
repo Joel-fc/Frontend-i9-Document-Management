@@ -5,6 +5,7 @@ import type { Project } from '../../services/projectServices';
 import { getProjectsService } from '../../services/projectServices';
 import { ProjectCard } from '../../components/ProjectCard';
 import { ProjectSkeleton } from '../../components/ProjectSkeleton';
+import { NewProjectModal } from '../../components/NewProjectModal';
 
 export default function Projects() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function Projects() {
   const [totalPages, setTotalPages] = useState(1);
   const [searchTitle, setSearchTitle] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -77,7 +79,10 @@ export default function Projects() {
             <h1 className="text-2xl mt-2 font-bold text-white tracking-widest uppercase">Lista de Projetos</h1>
           </div>
           
-          <button className="inline-flex items-center justify-center bg-brand-orange hover:bg-orange-600 text-white px-6 py-3 rounded-md font-semibold tracking-wide uppercase transition-colors shadow-md">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex items-center justify-center bg-brand-orange hover:bg-orange-600 text-white px-6 py-3 rounded-md font-semibold tracking-wide uppercase transition-colors shadow-md"
+          >
             <Plus className="w-5 h-5 mr-2" />
             Novo Projeto
           </button>
@@ -180,6 +185,15 @@ export default function Projects() {
           </div>
         )}
       </div>
+
+      <NewProjectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={() => {
+          setIsModalOpen(false);
+          fetchProjects();
+        }}
+      />
     </main>
   );
 }

@@ -17,8 +17,21 @@ export interface EmployeeDocumentsResponse {
   documents: Document[];
 }
 
+export interface EmployeeListItem {
+  id: string;
+  name: string;
+  email: string;
+  role?: string | null;
+  avatarUrl?: string | null;
+}
+
 export const getEmployeeDocumentsService = async (employeeId: string): Promise<EmployeeDocumentsResponse> => {
   const response = await axiosApi.get(`/users/${employeeId}/documents`);
+  return response.data;
+};
+
+export const getAllEmployeesService = async (): Promise<EmployeeListItem[]> => {
+  const response = await axiosApi.get('/employees');
   return response.data;
 };
 

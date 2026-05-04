@@ -2,28 +2,31 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getProjectByIdService } from '../../services/projectServices';
 import type { ProjectDetails } from '../../services/projectServices';
+import { Plus } from 'lucide-react';
+import { LinkEmployeeModal } from '../../components/LinkEmployeeModal';
 
 export default function ProjectDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const [project, setProject] = useState<ProjectDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+
+  const fetchProject = async () => {
+    try {
+      if (!isLinkModalOpen && !project) setLoading(true); // avoid full loading skeleton on background refresh
+      if (id) {
+        const data = await getProjectByIdService(id);
+        setProject(data);
+      }
+    } catch (err) {
+      setError('Failed to load project details.');
+    } finally {
+      if (!isLinkModalOpen) setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        setLoading(true);
-        if (id) {
-          const data = await getProjectByIdService(id);
-          setProject(data);
-        }
-      } catch (err) {
-        setError('Failed to load project details.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProject();
   }, [id]);
 
@@ -94,9 +97,18 @@ export default function ProjectDetailsPage() {
 
       {/* Team Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-        <div className="flex items-center justify-between mb-8 relative">
-          <div className="absolute -top-3 left-0 w-10 h-1 bg-brand-orange rounded-full"></div>
-          <h2 className="text-2xl mt-1 font-bold text-brand-blue uppercase tracking-widest">Equipe do Projeto</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+          <div className="relative">
+            <div className="absolute -top-3 left-0 w-10 h-1 bg-brand-orange rounded-full"></div>
+            <h2 className="text-2xl mt-1 font-bold text-brand-blue uppercase tracking-widest">Equipe do Projeto</h2>
+          </div>
+          <button 
+            onClick={() => setIsLinkModalOpen(true)}
+            className="inline-flex items-center justify-center bg-brand-orange hover:bg-orange-600 text-white px-5 py-2.5 rounded-md font-semibold tracking-wide uppercase transition-colors shadow-md text-sm"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Vincular Funcionário
+          </button>
         </div>
 
         {(!project.users || project.users.length === 0) ? (
@@ -149,6 +161,17 @@ export default function ProjectDetailsPage() {
           </div>
         )}
       </div>
+
+      <LinkEmployeeModal
+        isOpen={isLinkModalOpen}
+        onClose={() => setIsLinkModalOpen(false)}
+        onSuccess={() => {
+          setIsLinkModalOpen(false);
+          fetchProject();
+        }}
+        projectId={id!}
+        currentUsers={project.users || []}
+      />
     </div>
   );
 }
